@@ -102,7 +102,7 @@ func Test_environmentSearcher_ProjectID(t *testing.T) {
 		want   string
 	}{
 		{
-			name: "",
+			name: "Environment variable set",
 			fields: fields{
 				newEnvLookupKeys: func() []string {
 					key := "__GCP_PROJECT_ID_TEST__"
@@ -113,7 +113,7 @@ func Test_environmentSearcher_ProjectID(t *testing.T) {
 			want: "gcp-id-test",
 		},
 		{
-			name: "",
+			name: "Environment variables not set",
 			fields: fields{
 				newEnvLookupKeys: func() []string { return nil },
 			},
@@ -152,7 +152,7 @@ func Test_credentialsSearcher_ProjectID(t *testing.T) {
 		want   string
 	}{
 		{
-			name: "",
+			name: "google.FindDefaultCredentials succeeds",
 			fields: fields{
 				findCredentialsFn: func(context.Context, ...string) (
 					*google.Credentials, error,
@@ -196,7 +196,7 @@ func Test_credentialsSearcher_ProjectID_Error(t *testing.T) {
 		args   args
 	}{
 		{
-			name: "",
+			name: "google.FindDefaultCredentials fails",
 			fields: fields{
 				findCredentialsFn: func(context.Context, ...string) (
 					*google.Credentials, error,
@@ -222,28 +222,33 @@ func Test_credentialsSearcher_ProjectID_Error(t *testing.T) {
 
 // GCloud Searcher
 
-func Test_gcloudSearcher_ProjectID(t *testing.T) {
-	var useGCloud bool
-	gcloud, _ := exec.LookPath("gcloud")
-	if gcloud != "" {
-		// Sanity check: Is a project set as default?
-		s := &gcloudSearcher{
-			executables: commonGCloudPaths(),
-			output:      cmdOutput,
-		}
-		id, _ := s.ProjectID(context.Background())
-		if id != "" {
-			useGCloud = true
-		} else {
-			t.Log("[WARN] gcloud command found, but no project is configured" +
-				"as default")
-		}
-	} else {
+func checkGCloud(t *testing.T) (executable string, ok bool) {
+	executable, _ = exec.LookPath("gcloud")
+	if executable == "" {
 		t.Log("[WARN] gcloud command not found in PATH. Is it installed?" +
 			"Tests will run with a mock.")
+		return
 	}
+	// Sanity check: Is a project set as default?
+	s := &gcloudSearcher{
+		executables: commonGCloudPaths(),
+		output:      cmdOutput,
+	}
+	id, _ := s.ProjectID(context.Background())
+	if id == "" {
+		t.Log("[WARN] gcloud command found, but no project is configured" +
+			"as default")
+		return
+	}
+	ok = true
+	return
+}
 
-	t.Run("", func(t *testing.T) {
+func Test_gcloudSearcher_ProjectID(t *testing.T) {
+	var (
+		gcloud, useGCloud = checkGCloud(t)
+	)
+	t.Run("Use gcloud from PATH", func(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: []string{gcloud},
 			output:      cmdOutput,
@@ -260,7 +265,7 @@ func Test_gcloudSearcher_ProjectID(t *testing.T) {
 		assert.NotEmpty(t, got)
 	})
 
-	t.Run("", func(t *testing.T) {
+	t.Run("Use gcloud from common locations", func(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: commonGCloudPaths(),
 			output:      cmdOutput,
@@ -277,7 +282,7 @@ func Test_gcloudSearcher_ProjectID(t *testing.T) {
 		assert.NotEmpty(t, got)
 	})
 
-	t.Run("", func(t *testing.T) {
+	t.Run("gcloud command not found", func(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: []string{"_"},
 			output:      cmdOutput,
