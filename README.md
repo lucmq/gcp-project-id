@@ -1,7 +1,7 @@
-# gcp-id
-[![Go Reference](https://pkg.go.dev/badge/github.com/lucmq/gcp-id.svg)](https://pkg.go.dev/github.com/lucmq/gcp-id)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lucmq/gcp-id)](https://goreportcard.com/report/github.com/lucmq/gcp-id)
-[![Go Coverage](https://github.com/lucmq/gcp-id/wiki/coverage.svg)](https://raw.githack.com/wiki/lucmq/gcp-id/coverage.html)
+# google-cloud-id
+[![Go Reference](https://pkg.go.dev/badge/github.com/lucmq/google-cloud-id.svg)](https://pkg.go.dev/github.com/lucmq/google-cloud-id)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lucmq/google-cloud-id)](https://goreportcard.com/report/github.com/lucmq/google-cloud-id)
+[![Go Coverage](https://github.com/lucmq/google-cloud-id/wiki/coverage.svg)](https://raw.githack.com/wiki/lucmq/google-cloud-id/coverage.html)
 
 Access your Google Cloud project ID and related configuration.
 
@@ -12,7 +12,7 @@ ID configured within the `GCLOUD` CLI.
 To use this package in your Go project, you can install it using `go get`:
 
 ```bash
-go get github.com/lucmq/gcp-id
+go get github.com/lucmq/google-cloud-id
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/lucmq/gcp-id/project"
+	"github.com/lucmq/google-cloud-id/project"
 )
 
 func main() {
@@ -44,7 +44,7 @@ import (
 	"fmt"
 	"time"
 	
-	"github.com/lucmq/gcp-id/project"
+	"github.com/lucmq/google-cloud-id/project"
 )
 
 func main() {
