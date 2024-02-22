@@ -106,11 +106,11 @@ func Test_environmentSearcher_ProjectID(t *testing.T) {
 			fields: fields{
 				newEnvLookupKeys: func() []string {
 					key := "__GCP_PROJECT_ID_TEST__"
-					t.Setenv(key, "gcp-id-project")
+					t.Setenv(key, "gcp-id-test")
 					return []string{key}
 				},
 			},
-			want: "gcp-id-project",
+			want: "gcp-id-test",
 		},
 		{
 			name: "",
@@ -158,13 +158,13 @@ func Test_credentialsSearcher_ProjectID(t *testing.T) {
 					*google.Credentials, error,
 				) {
 					c := google.Credentials{
-						ProjectID: "gcp-id-project",
+						ProjectID: "gcp-id-test",
 					}
 					return &c, nil
 				},
 			},
 			args: args{ctx: context.Background(), scopes: nil},
-			want: "gcp-id-project",
+			want: "gcp-id-test",
 		},
 	}
 	for _, tt := range tests {
@@ -223,15 +223,24 @@ func Test_credentialsSearcher_ProjectID_Error(t *testing.T) {
 // GCloud Searcher
 
 func Test_gcloudSearcher_ProjectID(t *testing.T) {
-	gcloud, err := exec.LookPath("gcloud")
-	_ = err
-	if gcloud == "" {
-		t.Log("[WARN] gcloud command not found in PATH. Is it installed?")
+	var useGCloud bool
+	gcloud, _ := exec.LookPath("gcloud")
+	if gcloud != "" {
+		useGCloud = true
+	} else {
+		t.Log("[WARN] gcloud command not found in PATH. Is it installed?" +
+			"Tests will run with a mock.")
 	}
 
 	t.Run("", func(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: []string{gcloud},
+			output:      cmdOutput,
+		}
+		if !useGCloud {
+			s.output = func(cmd *exec.Cmd) ([]byte, error) {
+				return []byte("gcp-id-test"), nil
+			}
 		}
 
 		got, err := s.ProjectID(context.Background())
@@ -243,6 +252,7 @@ func Test_gcloudSearcher_ProjectID(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: commonGCloudPaths(),
+			output:      cmdOutput,
 		}
 
 		got, err := s.ProjectID(context.Background())
@@ -254,6 +264,7 @@ func Test_gcloudSearcher_ProjectID(t *testing.T) {
 	t.Run("", func(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: []string{"_"},
+			output:      cmdOutput,
 		}
 
 		got, err := s.ProjectID(context.Background())

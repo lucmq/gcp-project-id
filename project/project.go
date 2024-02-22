@@ -196,6 +196,7 @@ func commonGCloudPaths() []string {
 
 type gcloudSearcher struct {
 	executables []string
+	output      func(cmd *exec.Cmd) ([]byte, error)
 }
 
 var _ searcher = (*gcloudSearcher)(nil)
@@ -204,9 +205,12 @@ func newGCloudSearcher() *gcloudSearcher {
 	executables := commonGCloudPaths()
 	s := gcloudSearcher{
 		executables: executables,
+		output:      cmdOutput,
 	}
 	return &s
 }
+
+func cmdOutput(cmd *exec.Cmd) ([]byte, error) { return cmd.Output() }
 
 func (s *gcloudSearcher) ProjectID(
 	ctx context.Context, _ ...string,
@@ -220,7 +224,7 @@ func (s *gcloudSearcher) ProjectID(
 			gcloud,
 			"config", "get-value", "project",
 		)
-		b, err := c.Output()
+		b, err := s.output(c)
 		if err != nil {
 			// Try the next possible gcloud executable path.
 			continue
