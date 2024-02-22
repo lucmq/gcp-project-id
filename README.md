@@ -2,8 +2,8 @@
 
 Access your Google Cloud project ID and related configuration.
 
-Works seamlessly in both cloud and local development environments, as it can retrieve
-the project ID configured within the `gcloud` CLI.
+Works in the cloud and local development environments, as it can retrieve the project
+ID configured within the `GCLOUD` CLI.
 
 ## Installation
 To use this package in your Go project, you can install it using `go get`:
