@@ -226,7 +226,18 @@ func Test_gcloudSearcher_ProjectID(t *testing.T) {
 	var useGCloud bool
 	gcloud, _ := exec.LookPath("gcloud")
 	if gcloud != "" {
-		useGCloud = true
+		// Sanity check: Is a project set as default?
+		s := &gcloudSearcher{
+			executables: commonGCloudPaths(),
+			output:      cmdOutput,
+		}
+		id, _ := s.ProjectID(context.Background())
+		if id != "" {
+			useGCloud = true
+		} else {
+			t.Log("[WARN] gcloud command found, but no project is configured" +
+				"as default")
+		}
 	} else {
 		t.Log("[WARN] gcloud command not found in PATH. Is it installed?" +
 			"Tests will run with a mock.")
@@ -253,6 +264,11 @@ func Test_gcloudSearcher_ProjectID(t *testing.T) {
 		s := &gcloudSearcher{
 			executables: commonGCloudPaths(),
 			output:      cmdOutput,
+		}
+		if !useGCloud {
+			s.output = func(cmd *exec.Cmd) ([]byte, error) {
+				return []byte("gcp-id-test"), nil
+			}
 		}
 
 		got, err := s.ProjectID(context.Background())
