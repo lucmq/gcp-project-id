@@ -1,4 +1,4 @@
-module github.com/lucmq/google-cloud-id
+module github.com/lucmq/gcp-project-id
 
 go 1.18
 
