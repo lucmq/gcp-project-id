@@ -3,7 +3,6 @@ package project
 import (
 	"context"
 	"errors"
-	"os"
 	"os/exec"
 	"testing"
 	"time"
@@ -107,10 +106,7 @@ func Test_environmentSearcher_ProjectID(t *testing.T) {
 			fields: fields{
 				newEnvLookupKeys: func() []string {
 					key := "__GCP_PROJECT_ID_TEST__"
-					err := os.Setenv(key, "gcp-id-project")
-					if err != nil {
-						t.Fatal(err)
-					}
+					t.Setenv(key, "gcp-id-project")
 					return []string{key}
 				},
 			},
